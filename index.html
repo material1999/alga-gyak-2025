@@ -87,7 +87,7 @@
             }
 
             ul#items li .links a {
-                margin-top: 5px;
+                margin-top: 15px;
             }
 
             ul#items li:hover {
@@ -162,6 +162,9 @@
                 collection,
                 addDoc,
                 getDocs,
+                query,
+                where,
+                serverTimestamp,
             } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
             const firebaseConfig = {
@@ -193,13 +196,26 @@
                     const solutionLink = data.solution
                         ? `<a href="${data.solution}" target="_blank">Megoldás</a>`
                         : "N/A";
+                    const date = data.datetime?.toDate
+                        ? data.datetime.toDate().toLocaleString()
+                        : "N/A";
+
+                    let statusColor = "#ff9800";
+                    if (data.status === "Helyes megoldás") {
+                        statusColor = "#66bb6a";
+                    }
 
                     list.innerHTML += `
                     <li>
-                        <strong>${data.name}</strong> (${data.neptun}) - ${data.title}<br>
+                        <strong class="nameField">${data.name}</strong>
+                        (<span class="neptunField">${data.neptun}</span>) -
+                        <span class="titleField">${data.title}</span><br>
+                        <small><em class="dateField">${date}</em> -
+                        <span class="statusField" style="color:${statusColor}">${data.status}</span></small><br>
                         <div class="links">${problemLink} ${solutionLink}</div>
+                        <span class="problemField" style="display:none">${data.problem}</span>
                     </li>
-                `;
+                    `;
                 });
             }
 
@@ -211,35 +227,88 @@
                 const problem = document.getElementById("problem").value;
                 const solution = document.getElementById("solution").value;
 
-                await addDoc(collection(db, "solutions"), {
-                    name,
-                    neptun,
-                    title,
-                    problem,
-                    solution,
-                });
+                if (!name || !neptun || !title || !problem || !solution) {
+                    alert("Kérlek töltsd ki az összes mezőt!");
+                    return;
+                }
 
-                document.getElementById("itemForm").reset();
-                loadItems();
+                try {
+                    const q = query(
+                        collection(db, "solutions"),
+                        where("problem", "==", problem),
+                    );
+                    const querySnapshot = await getDocs(q);
+
+                    if (!querySnapshot.empty) {
+                        alert(
+                            "Ezt a feladatot valaki már megoldotta, kérlek válassz egy másikat!",
+                        );
+                        return;
+                    }
+
+                    await addDoc(collection(db, "solutions"), {
+                        name,
+                        neptun,
+                        title,
+                        problem,
+                        solution,
+                        datetime: serverTimestamp(),
+                        status: "Ellenőrzés alatt...",
+                    });
+
+                    alert("Sikeres beadás!");
+                    document.getElementById("itemForm").reset();
+                    loadItems();
+                } catch (error) {
+                    console.error("Error adding document: ", error);
+                    alert("Valami nem oké, próbáld meg újra!");
+                }
             }
 
             const nameInput = document.getElementById("name");
+            const neptunInput = document.getElementById("neptun");
+            const titleInput = document.getElementById("title");
+            const problemInput = document.getElementById("problem");
 
-            nameInput.addEventListener("input", () => {
-                const filterText = nameInput.value.toLowerCase();
+            function filterItems() {
+                const nameText = nameInput.value.toLowerCase();
+                const neptunText = neptunInput.value.toLowerCase();
+                const titleText = titleInput.value.toLowerCase();
+                const problemText = problemInput.value.toLowerCase();
+
                 const items = document.querySelectorAll("#items li");
 
                 items.forEach((item) => {
                     const name = item
-                        .querySelector("strong")
+                        .querySelector(".nameField")
                         .textContent.toLowerCase();
-                    if (filterText === "" || name.includes(filterText)) {
+                    const neptun = item
+                        .querySelector(".neptunField")
+                        .textContent.toLowerCase();
+                    const title = item
+                        .querySelector(".titleField")
+                        .textContent.toLowerCase();
+                    const problem = item
+                        .querySelector(".problemField")
+                        .textContent.toLowerCase();
+
+                    if (
+                        (name.includes(nameText) || !nameText) &&
+                        (neptun.includes(neptunText) || !neptunText) &&
+                        (title.includes(titleText) || !titleText) &&
+                        (problem.includes(problemText) || !problemText)
+                    ) {
                         item.style.display = "";
                     } else {
                         item.style.display = "none";
                     }
                 });
-            });
+            }
+
+            nameInput.addEventListener("input", filterItems);
+            neptunInput.addEventListener("input", filterItems);
+            titleInput.addEventListener("input", filterItems);
+            problemInput.addEventListener("input", filterItems);
 
             window.onload = () => {
                 loadItems();
