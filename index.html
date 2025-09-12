@@ -1,12 +1,100 @@
 <!doctype html>
-<html lang="en">
+<html>
     <head>
+        <title>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</title>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Alga 2025</title>
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+            import {
+                getFirestore,
+                collection,
+                addDoc,
+                getDocs,
+            } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyAuIulyMJrB_GYmA5aID_pWxHXoHFTCNQ0",
+                authDomain: "alga-gyak-2025.firebaseapp.com",
+                projectId: "alga-gyak-2025",
+                storageBucket: "alga-gyak-2025.firebasestorage.app",
+                messagingSenderId: "798739317349",
+                appId: "1:798739317349:web:0c4725d48a77dc2cb9bc8c",
+                measurementId: "G-6XY12RYL7N",
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            async function loadItems() {
+                const querySnapshot = await getDocs(
+                    collection(db, "solutions"),
+                );
+
+                const list = document.getElementById("items");
+                list.innerHTML = "";
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+
+                    const problem = data.problem
+                        ? `<a href="${data.problem}" target="_blank">Probléma</a>`
+                        : "N/A";
+                    const solution = data.solution
+                        ? `<a href="${data.solution}" target="_blank">Megoldás</a>`
+                        : "N/A";
+
+                    list.innerHTML += `
+                        <li>
+                            <strong>Name:</strong> ${data.name} (${data.neptun})<br>
+                            ${problem} | ${solution}
+                        </li>
+                    `;
+                });
+            }
+
+            async function addItem(e) {
+                e.preventDefault();
+                const name = document.getElementById("name").value;
+                const neptun = document.getElementById("neptun").value;
+                const problem = document.getElementById("problem").value;
+                const solution = document.getElementById("solution").value;
+                await addDoc(collection(db, "solutions"), {
+                    name,
+                    neptun,
+                    problem,
+                    solution,
+                });
+                document.getElementById("itemForm").reset();
+                loadItems();
+            }
+
+            window.onload = () => {
+                loadItems();
+                document
+                    .getElementById("itemForm")
+                    .addEventListener("submit", addItem);
+            };
+        </script>
     </head>
     <body>
-        <h1>Welcome to Alga 2025!</h1>
-        <p>This is my GitHub Pages site.</p>
+        <h1>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</h1>
+        <form id="itemForm">
+            <input type="text" id="name" placeholder="Név" required />
+            <input type="text" id="neptun" placeholder="Neptun kód" required />
+            <input
+                type="text"
+                id="problem"
+                placeholder="Probléma URL"
+                required
+            />
+            <input
+                type="text"
+                id="solution"
+                placeholder="Megoldás URL"
+                required
+            />
+            <button type="submit">Add Item</button>
+        </form>
+        <ul id="items"></ul>
     </body>
 </html>
