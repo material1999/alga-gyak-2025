@@ -164,6 +164,7 @@
                 getDocs,
                 query,
                 where,
+                orderBy,
                 serverTimestamp,
             } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
@@ -181,9 +182,13 @@
             const db = getFirestore(app);
 
             async function loadItems() {
-                const querySnapshot = await getDocs(
+                const q = query(
                     collection(db, "solutions"),
+                    orderBy("datetime", "desc"),
                 );
+
+                const querySnapshot = await getDocs(q);
+
                 const list = document.getElementById("items");
                 list.innerHTML = "";
 
@@ -202,7 +207,7 @@
 
                     let statusColor = "#ff9800";
                     if (data.status === "Helyes megoldás") {
-                        statusColor = "#66bb6a";
+                        statusColor = "#4caf50";
                     }
 
                     list.innerHTML += `
