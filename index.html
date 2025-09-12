@@ -1,8 +1,155 @@
 <!doctype html>
-<html>
+<html lang="hu">
     <head>
-        <title>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</title>
         <meta charset="UTF-8" />
+        <title>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #f9f9f9;
+                margin: 0;
+                padding: 20px;
+            }
+            h1 {
+                text-align: center;
+                color: #333;
+            }
+            form {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+                margin-bottom: 30px;
+            }
+
+            .form-row {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            form input {
+                padding: 10px;
+                font-size: 1rem;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+
+            .small input {
+                width: 300px;
+            }
+
+            .big input {
+                width: 600px;
+            }
+
+            form button {
+                padding: 10px 20px;
+                font-size: 1rem;
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+
+            form button:hover {
+                background-color: #45a049;
+            }
+
+            ul#items {
+                list-style: none;
+                padding: 0;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 15px;
+            }
+            ul#items li {
+                background: white;
+                padding: 15px;
+                border-radius: 10px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+                transition:
+                    transform 0.2s,
+                    box-shadow 0.2s,
+                    background-color 0.2s;
+            }
+            ul#items li strong {
+                display: inline-block;
+                margin-bottom: 8px;
+                color: #555;
+            }
+
+            ul#items li .links a {
+                margin-top: 5px;
+            }
+
+            ul#items li:hover {
+                background-color: #f0f8ff;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                transform: translateY(-3px);
+            }
+
+            .links a {
+                display: inline-block;
+                margin-right: 10px;
+                padding: 5px 10px;
+                background: #007bff;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                font-size: 0.9rem;
+            }
+            .links a:hover {
+                background: #0056b3;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</h1>
+
+        <form id="itemForm">
+            <div class="form-row, medium">
+                <input type="text" id="name" placeholder="Név" required />
+                <input
+                    type="text"
+                    id="neptun"
+                    placeholder="Neptun kód"
+                    required
+                />
+            </div>
+            <div class="form-row, big">
+                <input
+                    type="text"
+                    id="title"
+                    placeholder="Probléma neve"
+                    required
+                />
+            </div>
+            <div class="form-row, big">
+                <input
+                    type="text"
+                    id="problem"
+                    placeholder="Probléma URL"
+                    required
+                />
+            </div>
+            <div class="form-row, big">
+                <input
+                    type="text"
+                    id="solution"
+                    placeholder="Megoldás URL"
+                    required
+                />
+            </div>
+            <div class="form-row">
+                <button type="submit">Feladat beadása</button>
+            </div>
+        </form>
+
+        <ul id="items"></ul>
+
         <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
             import {
@@ -29,26 +176,25 @@
                 const querySnapshot = await getDocs(
                     collection(db, "solutions"),
                 );
-
                 const list = document.getElementById("items");
                 list.innerHTML = "";
 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
 
-                    const problem = data.problem
+                    const problemLink = data.problem
                         ? `<a href="${data.problem}" target="_blank">Probléma</a>`
                         : "N/A";
-                    const solution = data.solution
+                    const solutionLink = data.solution
                         ? `<a href="${data.solution}" target="_blank">Megoldás</a>`
                         : "N/A";
 
                     list.innerHTML += `
-                        <li>
-                            <strong>Name:</strong> ${data.name} (${data.neptun})<br>
-                            ${problem} | ${solution}
-                        </li>
-                    `;
+                    <li>
+                        <strong>${data.name}</strong> (${data.neptun}) - ${data.title}<br>
+                        <div class="links">${problemLink} ${solutionLink}</div>
+                    </li>
+                `;
                 });
             }
 
@@ -56,14 +202,18 @@
                 e.preventDefault();
                 const name = document.getElementById("name").value;
                 const neptun = document.getElementById("neptun").value;
+                const title = document.getElementById("title").value;
                 const problem = document.getElementById("problem").value;
                 const solution = document.getElementById("solution").value;
+
                 await addDoc(collection(db, "solutions"), {
                     name,
                     neptun,
+                    title,
                     problem,
                     solution,
                 });
+
                 document.getElementById("itemForm").reset();
                 loadItems();
             }
@@ -75,26 +225,5 @@
                     .addEventListener("submit", addItem);
             };
         </script>
-    </head>
-    <body>
-        <h1>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</h1>
-        <form id="itemForm">
-            <input type="text" id="name" placeholder="Név" required />
-            <input type="text" id="neptun" placeholder="Neptun kód" required />
-            <input
-                type="text"
-                id="problem"
-                placeholder="Probléma URL"
-                required
-            />
-            <input
-                type="text"
-                id="solution"
-                placeholder="Megoldás URL"
-                required
-            />
-            <button type="submit">Add Item</button>
-        </form>
-        <ul id="items"></ul>
     </body>
 </html>
