@@ -4,13 +4,28 @@
         <meta charset="UTF-8" />
         <title>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</title>
         <style>
+            html {
+                overflow-y: scroll;
+            }
+            ::-webkit-scrollbar {
+                width: 12px;
+            }
+            ::-webkit-scrollbar-thumb {
+                background-color: rgba(0, 0, 0, 0.3);
+                border-radius: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
             body {
                 font-family: Arial, sans-serif;
                 background: #f9f9f9;
                 margin: 0;
                 padding: 20px;
             }
-            h1 {
+            h1,
+            h2 {
                 text-align: center;
                 color: #333;
             }
@@ -138,10 +153,37 @@
                 position: relative;
                 text-align: center;
             }
+            #closeModal {
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+            .admin-btn {
+                position: fixed;
+                top: 50px;
+                right: 50px;
+                background: #2196f3;
+                color: white;
+                border: none;
+                padding: 8px 12px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+                transition: background 0.2s;
+                z-index: 1100;
+            }
+
+            .admin-btn:hover {
+                background: #1976d2;
+            }
         </style>
     </head>
     <body>
         <h1>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</h1>
+        <h2>Feladat beadási felület</h2>
+        <br />
+        <button id="adminLoginBtn" class="admin-btn">🔑 Admin</button>
 
         <form id="itemForm">
             <div class="form-row medium">
@@ -226,6 +268,13 @@
                 orderBy,
                 serverTimestamp,
             } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+            import {
+                getAuth,
+                signInWithPopup,
+                GoogleAuthProvider,
+                signOut,
+                onAuthStateChanged,
+            } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
             const firebaseConfig = {
                 apiKey: "AIzaSyAuIulyMJrB_GYmA5aID_pWxHXoHFTCNQ0",
@@ -239,6 +288,36 @@
 
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
+
+            const auth = getAuth(app);
+            const provider = new GoogleAuthProvider();
+
+            const adminLoginBtn = document.getElementById("adminLoginBtn");
+
+            // Track login state
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    adminLoginBtn.textContent = "🚪 Kijelentkezés";
+                } else {
+                    adminLoginBtn.textContent = "🔑 Admin";
+                }
+            });
+
+            // Handle login/logout
+            adminLoginBtn.addEventListener("click", async () => {
+                if (auth.currentUser) {
+                    await signOut(auth);
+                    alert("Kijelentkeztél!");
+                } else {
+                    try {
+                        await signInWithPopup(auth, provider);
+                        alert("Sikeres bejelentkezés!");
+                    } catch (error) {
+                        console.error("Bejelentkezési hiba:", error);
+                        alert("Nem sikerült bejelentkezni!");
+                    }
+                }
+            });
 
             const toggleHelp = document.getElementById("toggleHelp");
             const helpModal = document.getElementById("helpModal");
@@ -275,10 +354,10 @@
                     const data = doc.data();
 
                     const problemLink = data.problem
-                        ? `<a href="${data.problem}" target="_blank">Probléma</a>`
+                        ? `<a href="${data.problem}" target="_blank">💡 Probléma</a>`
                         : "N/A";
                     const solutionLink = data.solution
-                        ? `<a href="${data.solution}" target="_blank">Megoldás</a>`
+                        ? `<a href="${data.solution}" target="_blank">📝 Megoldás</a>`
                         : "N/A";
                     const date = data.datetime?.toDate
                         ? data.datetime.toDate().toLocaleString()
