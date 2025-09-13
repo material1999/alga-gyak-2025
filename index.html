@@ -106,8 +106,37 @@
                 border-radius: 5px;
                 font-size: 0.9rem;
             }
+
             .links a:hover {
                 background: #0056b3;
+            }
+
+            #helpModal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            }
+
+            #helpModal.showModal {
+                display: flex;
+            }
+
+            .modalContent {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                max-width: 600px;
+                width: 90%;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+                position: relative;
+                text-align: center;
             }
         </style>
     </head>
@@ -115,7 +144,7 @@
         <h1>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</h1>
 
         <form id="itemForm">
-            <div class="form-row, medium">
+            <div class="form-row medium">
                 <input type="text" id="name" placeholder="Név" required />
                 <input
                     type="text"
@@ -124,7 +153,7 @@
                     required
                 />
             </div>
-            <div class="form-row, big">
+            <div class="form-row big">
                 <input
                     type="text"
                     id="title"
@@ -132,7 +161,7 @@
                     required
                 />
             </div>
-            <div class="form-row, big">
+            <div class="form-row big">
                 <input
                     type="text"
                     id="problem"
@@ -140,7 +169,7 @@
                     required
                 />
             </div>
-            <div class="form-row, big">
+            <div class="form-row big">
                 <input
                     type="text"
                     id="solution"
@@ -148,10 +177,40 @@
                     required
                 />
             </div>
-            <div class="form-row">
-                <button type="submit">Feladat beadása</button>
+            <div
+                class="form-row"
+                style="display: flex; align-items: flex-start; gap: 10px"
+            >
+                <button type="button" id="toggleHelp">
+                    ℹ️ Hogyan adjam be?
+                </button>
+                <button type="submit">▶️ Feladat beadása</button>
             </div>
         </form>
+
+        <div id="helpModal">
+            <div class="modalContent">
+                <h3>Hogyan használd a beadási felületet?</h3>
+                <br />
+                <div><strong>Név:</strong> Teljes neved</div>
+                <div><strong>Neptun kód:</strong> Neptun kódod</div>
+                <div>
+                    <strong>Probléma neve:</strong> Feladat pontos neve a
+                    weboldalról kimásolva
+                </div>
+                <div>
+                    <strong>Probléma URL:</strong> Választott feladat
+                    weboldalának URL-je
+                </div>
+                <div>
+                    <strong>Megoldás URL:</strong> GitHub/Drive/egyéb URL, ahol
+                    a megoldás programkódja elérhető
+                </div>
+                <br />
+                <p>A beadott feladatokat a gyakorlatvezetők ellenőrzik!</p>
+                <button id="closeModal">Bezár</button>
+            </div>
+        </div>
 
         <ul id="items"></ul>
 
@@ -180,6 +239,26 @@
 
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
+
+            const toggleHelp = document.getElementById("toggleHelp");
+            const helpModal = document.getElementById("helpModal");
+            const closeModal = document.getElementById("closeModal");
+
+            // Open modal
+            toggleHelp.addEventListener("click", () =>
+                helpModal.classList.add("showModal"),
+            );
+
+            // Close modal
+            closeModal.addEventListener("click", () =>
+                helpModal.classList.remove("showModal"),
+            );
+
+            // Optional: click outside modal content closes modal
+            helpModal.addEventListener("click", (e) => {
+                if (e.target === helpModal)
+                    helpModal.classList.remove("showModal");
+            });
 
             async function loadItems() {
                 const q = query(
