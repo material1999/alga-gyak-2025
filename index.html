@@ -177,6 +177,29 @@
             .admin-btn:hover {
                 background: #1976d2;
             }
+
+            #adminModal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                z-index: 1200;
+            }
+
+            #adminModal .modalContent {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                width: 300px;
+                text-align: center;
+            }
         </style>
     </head>
     <body>
@@ -184,6 +207,26 @@
         <h2>Feladat beadási felület</h2>
         <br />
         <button id="adminLoginBtn" class="admin-btn">🔑 Admin</button>
+
+        <div id="adminModal" class="hidden">
+            <div class="modalContent">
+                <h3>Admin Login</h3>
+                <input
+                    type="email"
+                    id="adminEmail"
+                    placeholder="Email"
+                    required
+                /><br /><br />
+                <input
+                    type="password"
+                    id="adminPassword"
+                    placeholder="Password"
+                    required
+                /><br /><br />
+                <button id="adminSubmit">Login</button>
+                <button id="adminClose">Cancel</button>
+            </div>
+        </div>
 
         <form id="itemForm">
             <div class="form-row medium">
@@ -270,8 +313,7 @@
             } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
             import {
                 getAuth,
-                signInWithPopup,
-                GoogleAuthProvider,
+                signInWithEmailAndPassword,
                 signOut,
                 onAuthStateChanged,
             } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
@@ -290,32 +332,50 @@
             const db = getFirestore(app);
 
             const auth = getAuth(app);
-            const provider = new GoogleAuthProvider();
 
             const adminLoginBtn = document.getElementById("adminLoginBtn");
+            const adminModal = document.getElementById("adminModal");
+            const adminClose = document.getElementById("adminClose");
+            const adminSubmit = document.getElementById("adminSubmit");
 
-            // Track login state
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    adminLoginBtn.textContent = "🚪 Kijelentkezés";
+            const adminEmail = document.getElementById("adminEmail");
+            const adminPassword = document.getElementById("adminPassword");
+
+            adminLoginBtn.addEventListener("click", () => {
+                if (!auth.currentUser) {
+                    adminModal.style.display = "block";
                 } else {
-                    adminLoginBtn.textContent = "🔑 Admin";
+                    signOut(auth).then(() => alert("Kijelentkeztél!"));
                 }
             });
 
-            // Handle login/logout
-            adminLoginBtn.addEventListener("click", async () => {
-                if (auth.currentUser) {
-                    await signOut(auth);
-                    alert("Kijelentkeztél!");
+            adminClose.addEventListener(
+                "click",
+                () => (adminModal.style.display = "none"),
+            );
+            adminModal.addEventListener("click", (e) => {
+                if (e.target === adminModal) adminModal.style.display = "none";
+            });
+
+            adminSubmit.addEventListener("click", async () => {
+                try {
+                    const email = adminEmail.value;
+                    const password = adminPassword.value;
+                    await signInWithEmailAndPassword(auth, email, password);
+                    alert("Sikeres bejelentkezés!");
+                    adminModal.style.display = "none";
+                } catch (error) {
+                    console.error(error);
+                    alert("Hibás email vagy jelszó!");
+                }
+            });
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    adminLoginBtn.textContent = "🚪 Kijelentkezés";
+                    // TODO: show admin-only controls here
                 } else {
-                    try {
-                        await signInWithPopup(auth, provider);
-                        alert("Sikeres bejelentkezés!");
-                    } catch (error) {
-                        console.error("Bejelentkezési hiba:", error);
-                        alert("Nem sikerült bejelentkezni!");
-                    }
+                    adminLoginBtn.textContent = "🔑 Admin";
                 }
             });
 
