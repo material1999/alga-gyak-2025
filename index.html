@@ -268,8 +268,8 @@
                     <option value="" disabled selected>
                         Feladat nehézsége
                     </option>
-                    <option value="easy">Könnyű</option>
-                    <option value="medium">Közepes</option>
+                    <option value="Könnyű">Könnyű</option>
+                    <option value="Közepes">Közepes</option>
                 </select>
             </div>
             <div class="form-row big">
@@ -499,7 +499,7 @@
                     <li>
                         <strong class="nameField">${data.name}</strong>
                         (<span class="neptunField">${data.neptun}</span>) -
-                        <span class="titleField">${data.title}</span><small style="color:#555;"> [${data.difficulty ?? "N/A"}]</small><br>
+                        <span class="titleField">${data.title}</span><small class="difficultyField" style="color:#555;"> [${data.difficulty ?? "N/A"}]</small><br>
                         <small><em class="dateField">${date}</em> -
                         <span class="statusField" style="color:${statusColor}">${data.status}</span></small><br>
                         <div class="links">${problemLink} ${solutionLink} ${adminControls}</div>
@@ -531,7 +531,9 @@
                     .getElementById("neptun")
                     .value.trim()
                     .toUpperCase();
-                const difficulty = document.getElementById("difficulty").value;
+                const difficulty = document
+                    .getElementById("difficulty")
+                    .value.trim();
                 const title = document.getElementById("title").value.trim();
                 const problem = document.getElementById("problem").value.trim();
                 const solution = document
@@ -627,12 +629,16 @@
 
             const nameInput = document.getElementById("name");
             const neptunInput = document.getElementById("neptun");
+            const difficultyInput = document.getElementById("difficulty");
             const titleInput = document.getElementById("title");
             const problemInput = document.getElementById("problem");
 
             function filterItems() {
                 const nameText = nameInput.value.trim().toLowerCase();
                 const neptunText = neptunInput.value.trim().toLowerCase();
+                const difficultyText = difficultyInput.value
+                    .trim()
+                    .toLowerCase();
                 const titleText = titleInput.value.trim().toLowerCase();
                 const problemText = problemInput.value.toLowerCase();
 
@@ -647,6 +653,10 @@
                         .querySelector(".neptunField")
                         .textContent.trim()
                         .toLowerCase();
+                    const difficulty = item
+                        .querySelector(".difficultyField")
+                        .textContent.trim()
+                        .toLowerCase();
                     const title = item
                         .querySelector(".titleField")
                         .textContent.trim()
@@ -659,6 +669,8 @@
                     if (
                         (name.includes(nameText) || !nameText) &&
                         (neptun.includes(neptunText) || !neptunText) &&
+                        (difficulty.includes(difficultyText) ||
+                            !difficultyText) &&
                         (title.includes(titleText) || !titleText) &&
                         (problem.includes(problemText) || !problemText)
                     ) {
@@ -671,6 +683,7 @@
 
             nameInput.addEventListener("input", filterItems);
             neptunInput.addEventListener("input", filterItems);
+            difficultyInput.addEventListener("change", filterItems);
             titleInput.addEventListener("input", filterItems);
             problemInput.addEventListener("input", filterItems);
 
