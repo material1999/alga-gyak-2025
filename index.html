@@ -98,7 +98,9 @@
                 width: 600px;
             }
 
-            form button {
+            form button,
+            .approveBtn,
+            .rejectBtn {
                 padding: 10px 20px;
                 font-size: 1rem;
                 background-color: #4caf50;
@@ -108,7 +110,9 @@
                 border-radius: 5px;
             }
 
-            form button:hover {
+            form button:hover,
+            .approveBtn:hover,
+            .rejectBtn:hover {
                 background-color: #45a049;
             }
 
@@ -331,6 +335,7 @@
                 addDoc,
                 getDoc,
                 getDocs,
+                updateDoc,
                 query,
                 where,
                 orderBy,
@@ -366,11 +371,18 @@
             const adminEmail = document.getElementById("adminEmail");
             const adminPassword = document.getElementById("adminPassword");
 
-            adminLoginBtn.addEventListener("click", () => {
+            adminLoginBtn.addEventListener("click", async () => {
                 if (!auth.currentUser) {
                     adminModal.style.display = "block";
                 } else {
-                    signOut(auth).then(() => alert("Kijelentkeztél!"));
+                    try {
+                        await signOut(auth);
+                        alert("Kijelentkeztél!");
+                        adminModal.style.display = "none";
+                        loadItems();
+                    } catch (error) {
+                        console.error("Kijelentkezési hiba:", error);
+                    }
                 }
             });
 
@@ -389,6 +401,7 @@
                     await signInWithEmailAndPassword(auth, email, password);
                     alert("Sikeres bejelentkezés!");
                     adminModal.style.display = "none";
+                    loadItems();
                 } catch (error) {
                     console.error(error);
                     alert("Hibás email vagy jelszó!");
@@ -398,7 +411,6 @@
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     adminLoginBtn.textContent = "🚪 Kijelentkezés";
-                    // TODO: show admin-only controls here
                 } else {
                     adminLoginBtn.textContent = "🔑 Admin";
                 }
@@ -450,6 +462,14 @@
                         statusColor = "#4caf50";
                     }
 
+                    let adminControls = "";
+                    if (auth.currentUser) {
+                        adminControls = `
+                            <button class="approveBtn" data-id="${doc.id}">✅</button>
+                            <button class="rejectBtn" data-id="${doc.id}">❌</button>
+                        `;
+                    }
+
                     list.innerHTML += `
                     <li>
                         <strong class="nameField">${data.name}</strong>
@@ -457,10 +477,23 @@
                         <span class="titleField">${data.title}</span><br>
                         <small><em class="dateField">${date}</em> -
                         <span class="statusField" style="color:${statusColor}">${data.status}</span></small><br>
-                        <div class="links">${problemLink} ${solutionLink}</div>
-                        <span class="problemField" style="display:none">${data.problem}</span>
+                        <div class="links">${problemLink} ${solutionLink} ${adminControls}</div>
                     </li>
                     `;
+
+                    document.querySelectorAll(".approveBtn").forEach((btn) => {
+                        btn.addEventListener("click", async () => {
+                            const docId = btn.dataset.id;
+                            await updateStatus(docId, "Helyes megoldás");
+                        });
+                    });
+
+                    document.querySelectorAll(".rejectBtn").forEach((btn) => {
+                        btn.addEventListener("click", async () => {
+                            const docId = btn.dataset.id;
+                            await updateStatus(docId, "Ellenőrzés alatt...");
+                        });
+                    });
                 });
             }
 
@@ -537,6 +570,17 @@
                 } catch (error) {
                     console.error("Error adding document: ", error);
                     alert("Valami nem oké, próbáld meg újra!");
+                }
+            }
+
+            async function updateStatus(docId, newStatus) {
+                try {
+                    const docRef = doc(db, "solutions", docId);
+                    await updateDoc(docRef, { status: newStatus });
+                    loadItems();
+                } catch (error) {
+                    console.error("Error updating status: ", error);
+                    alert("Hiba történt a státusz frissítésekor!");
                 }
             }
 
