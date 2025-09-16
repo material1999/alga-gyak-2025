@@ -1,17 +1,17 @@
 # Algoritmusok és adatszerkezetek a gyakorlatban (2025)
 
-A feladatbeadási felület és adminisztrációs rendszer az **Algoritmusok és adatszerkezetek a gyakorlatban** kurzushoz.
+Feladatbeadási felület és adminisztrációs rendszer az **Algoritmusok és adatszerkezetek a gyakorlatban** kurzushoz.
 
 ## 🌐 Release
 
-[Live Demo](https://material1999.github.io/alga-gyak-2025/)
+[Weboldal](https://material1999.github.io/alga-gyak-2025/)
 
 ## 📝 Funkciók
 
 - **Feladatok beadása hallgatók számára**
   - Név, Neptun kód, feladat neve
-  - Probléma URL és megoldás URL megadása
-  - Feladat nehézségi szint kiválasztása („Könnyű” vagy „Közepes”)
+  - Feladat nehézségi szintjének kiválasztása („Könnyű” vagy „Közepes”)
+  - Feladat URL és megoldás URL megadása
 
 - **Admin felület**
   - Feladatok ellenőrzése és státusz módosítása („Helyes megoldás”, „Ellenőrzés alatt…”)
@@ -33,7 +33,7 @@ A feladatbeadási felület és adminisztrációs rendszer az **Algoritmusok és 
 
 ## 📦 Használat
 
-1. Nyisd meg a [Live Demo](https://material1999.github.io/alga-gyak-2025/) oldalt.
+1. Nyisd meg a [feladatbeküldő oldalt](https://material1999.github.io/alga-gyak-2025/).
 2. Hallgatók:
    - Töltsd ki a beadási űrlapot és küldd be a feladatodat.
 3. Admin:
