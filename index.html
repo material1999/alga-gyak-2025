@@ -91,12 +91,20 @@
                 border: 1px solid #ccc;
             }
 
-            .small input {
-                width: 300px;
+            select:invalid {
+                color: #888;
             }
 
-            .big input {
-                width: 600px;
+            .small {
+                width: 100px;
+            }
+
+            .medium {
+                width: 250px;
+            }
+
+            .big {
+                width: 640px;
             }
 
             form button,
@@ -225,6 +233,20 @@
                 width: 300px;
                 text-align: center;
             }
+
+            .mailto-link {
+                color: #2196f3;
+                text-decoration: none;
+                font-weight: 500;
+                transition:
+                    color 0.2s,
+                    text-decoration 0.2s;
+            }
+
+            .mailto-link:hover {
+                color: #1976d2;
+                text-decoration: underline;
+            }
         </style>
     </head>
     <body>
@@ -234,7 +256,12 @@
         </header>
 
         <h2>Feladat beadási felület</h2>
-        <h5>Gyakorlatvezető: Vass Máté</h5>
+        <h5>
+            Gyakorlatvezető: Vass Máté - Email:
+            <a href="mailto:vassmate@inf.u-szeged.hu" class="mailto-link">
+                vassmate@inf.u-szeged.hu
+            </a>
+        </h5>
         <h5>Helyszín, időpont: Irinyi 219 gépterem, csütörtök 18:00-19:30</h5>
         <br />
 
@@ -259,15 +286,27 @@
         </div>
 
         <form id="itemForm">
-            <div class="form-row medium">
-                <input type="text" id="name" placeholder="Név" required />
+            <div class="form-row">
                 <input
+                    class="medium"
+                    type="text"
+                    id="name"
+                    placeholder="Név"
+                    required
+                />
+                <input
+                    class="small"
                     type="text"
                     id="neptun"
                     placeholder="Neptun kód"
                     required
                 />
-                <select id="difficulty" required>
+                <select
+                    class="medium"
+                    id="difficulty"
+                    required
+                    style="font-size: 1rem"
+                >
                     <option value="" disabled selected>
                         Feladat nehézsége
                     </option>
@@ -275,24 +314,27 @@
                     <option value="Közepes">Közepes</option>
                 </select>
             </div>
-            <div class="form-row big">
+            <div class="form-row">
                 <input
+                    class="big"
                     type="text"
                     id="title"
                     placeholder="Probléma neve"
                     required
                 />
             </div>
-            <div class="form-row big">
+            <div class="form-row">
                 <input
+                    class="big"
                     type="text"
                     id="problem"
                     placeholder="Probléma URL"
                     required
                 />
             </div>
-            <div class="form-row big">
+            <div class="form-row">
                 <input
+                    class="big"
                     type="text"
                     id="solution"
                     placeholder="Megoldás URL"
