@@ -47,6 +47,7 @@
                 font-size: 14px;
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
                 transition: background 0.2s;
+                margin-right: 10px;
             }
 
             .admin-btn:hover {
@@ -253,8 +254,8 @@
                 justify-content: space-between;
                 align-items: center;
                 padding: 10px 30px;
-                margin-top: 20px;
-                margin-bottom: 50px;
+                margin-bottom: 30px;
+                background-color: #d3d3d3;
             }
 
             .info-row h5 {
@@ -301,6 +302,8 @@
                 <button id="adminSubmit">Bejelentkezés</button>
             </div>
         </div>
+
+        <h2 style="margin-bottom: 20px">Töltsd ki az alábbi mezőket:</h2>
 
         <form id="itemForm">
             <div class="form-row">
@@ -371,9 +374,7 @@
                 <button type="button" id="clearFormBtn">
                     🧹 Mezők törlése
                 </button>
-                <button type="button" id="toggleHelp">
-                    ℹ️ Hogyan adjam be?
-                </button>
+                <button type="button" id="toggleHelp">ℹ️ Segédlet</button>
                 <button type="submit">▶️ Feladat beadása</button>
             </div>
         </form>
