@@ -264,6 +264,13 @@
                     placeholder="Neptun kód"
                     required
                 />
+                <select id="difficulty" required>
+                    <option value="" disabled selected>
+                        Feladat nehézsége
+                    </option>
+                    <option value="easy">Könnyű</option>
+                    <option value="medium">Közepes</option>
+                </select>
             </div>
             <div class="form-row big">
                 <input
@@ -492,7 +499,7 @@
                     <li>
                         <strong class="nameField">${data.name}</strong>
                         (<span class="neptunField">${data.neptun}</span>) -
-                        <span class="titleField">${data.title}</span><br>
+                        <span class="titleField">${data.title}</span><small style="color:#555;"> [${data.difficulty ?? "N/A"}]</small><br>
                         <small><em class="dateField">${date}</em> -
                         <span class="statusField" style="color:${statusColor}">${data.status}</span></small><br>
                         <div class="links">${problemLink} ${solutionLink} ${adminControls}</div>
@@ -524,13 +531,21 @@
                     .getElementById("neptun")
                     .value.trim()
                     .toUpperCase();
+                const difficulty = document.getElementById("difficulty").value;
                 const title = document.getElementById("title").value.trim();
                 const problem = document.getElementById("problem").value.trim();
                 const solution = document
                     .getElementById("solution")
                     .value.trim();
 
-                if (!name || !neptun || !title || !problem || !solution) {
+                if (
+                    !name ||
+                    !neptun ||
+                    !difficulty ||
+                    !title ||
+                    !problem ||
+                    !solution
+                ) {
                     alert("Kérlek töltsd ki az összes mezőt!");
                     return;
                 }
@@ -575,6 +590,7 @@
                     await addDoc(collection(db, "solutions"), {
                         name,
                         neptun,
+                        difficulty,
                         title,
                         title_normalized: title.trim().toLowerCase(),
                         problem,
