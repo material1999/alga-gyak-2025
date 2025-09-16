@@ -27,9 +27,11 @@
                 align-items: center;
                 padding: 10px;
                 text-align: center;
+                background-color:;
             }
 
-            .page-header h1 {
+            .page-header h1,
+            .page-header h2 {
                 grid-column: 2;
                 margin: 0;
             }
@@ -65,6 +67,9 @@
             h1,
             h2,
             h5 {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
                 text-align: center;
                 color: #333;
             }
@@ -253,9 +258,9 @@
         <header class="page-header">
             <h1>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</h1>
             <button id="adminLoginBtn" class="admin-btn">🔑 Admin</button>
+            <h2 style="margin-top: 10px">Feladat beadási felület</h2>
         </header>
 
-        <h2>Feladat beadási felület</h2>
         <h5>
             Gyakorlatvezető: Vass Máté - Email:
             <a href="mailto:vassmate@inf.u-szeged.hu" class="mailto-link">
