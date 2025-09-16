@@ -327,7 +327,9 @@
             import {
                 getFirestore,
                 collection,
+                doc,
                 addDoc,
+                getDoc,
                 getDocs,
                 query,
                 where,
@@ -406,17 +408,14 @@
             const helpModal = document.getElementById("helpModal");
             const closeModal = document.getElementById("closeModal");
 
-            // Open modal
             toggleHelp.addEventListener("click", () =>
                 helpModal.classList.add("showModal"),
             );
 
-            // Close modal
             closeModal.addEventListener("click", () =>
                 helpModal.classList.remove("showModal"),
             );
 
-            // Optional: click outside modal content closes modal
             helpModal.addEventListener("click", (e) => {
                 if (e.target === helpModal)
                     helpModal.classList.remove("showModal");
@@ -467,11 +466,17 @@
 
             async function addItem(e) {
                 e.preventDefault();
-                const name = document.getElementById("name").value;
-                const neptun = document.getElementById("neptun").value;
-                const title = document.getElementById("title").value;
-                const problem = document.getElementById("problem").value;
-                const solution = document.getElementById("solution").value;
+
+                const name = document.getElementById("name").value.trim();
+                const neptun = document
+                    .getElementById("neptun")
+                    .value.trim()
+                    .toUpperCase();
+                const title = document.getElementById("title").value.trim();
+                const problem = document.getElementById("problem").value.trim();
+                const solution = document
+                    .getElementById("solution")
+                    .value.trim();
 
                 if (!name || !neptun || !title || !problem || !solution) {
                     alert("Kérlek töltsd ki az összes mezőt!");
@@ -479,15 +484,38 @@
                 }
 
                 try {
-                    const q = query(
-                        collection(db, "solutions"),
-                        where("problem", "==", problem),
-                    );
-                    const querySnapshot = await getDocs(q);
+                    const studentRef = doc(db, "students", neptun);
+                    const studentSnap = await getDoc(studentRef);
 
-                    if (!querySnapshot.empty) {
+                    if (
+                        !studentSnap.exists() ||
+                        studentSnap.data().name !== name
+                    ) {
+                        alert("Nem találtunk ilyen hallgatót az adatbázisban!");
+                        return;
+                    }
+
+                    const titleQuery = query(
+                        collection(db, "solutions"),
+                        where(
+                            "title_normalized",
+                            "==",
+                            title.trim().toLowerCase(),
+                        ),
+                    );
+                    const problemQuery = query(
+                        collection(db, "solutions"),
+                        where("problem", "==", problem.trim()),
+                    );
+
+                    const [problemSnap, titleSnap] = await Promise.all([
+                        getDocs(titleQuery),
+                        getDocs(problemQuery),
+                    ]);
+
+                    if (!problemSnap.empty || !titleSnap.empty) {
                         alert(
-                            "Ezt a feladatot valaki már megoldotta, kérlek válassz egy másikat!",
+                            "Ezt a feladatot valaki már beadta, kérlek válassz egy másikat!",
                         );
                         return;
                     }
@@ -496,6 +524,7 @@
                         name,
                         neptun,
                         title,
+                        title_normalized: title.trim().toLowerCase(),
                         problem,
                         solution,
                         datetime: serverTimestamp(),
@@ -517,9 +546,9 @@
             const problemInput = document.getElementById("problem");
 
             function filterItems() {
-                const nameText = nameInput.value.toLowerCase();
-                const neptunText = neptunInput.value.toLowerCase();
-                const titleText = titleInput.value.toLowerCase();
+                const nameText = nameInput.value.trim().toLowerCase();
+                const neptunText = neptunInput.value.trim().toLowerCase();
+                const titleText = titleInput.value.trim().toLowerCase();
                 const problemText = problemInput.value.toLowerCase();
 
                 const items = document.querySelectorAll("#items li");
@@ -527,16 +556,20 @@
                 items.forEach((item) => {
                     const name = item
                         .querySelector(".nameField")
-                        .textContent.toLowerCase();
+                        .textContent.trim()
+                        .toLowerCase();
                     const neptun = item
                         .querySelector(".neptunField")
-                        .textContent.toLowerCase();
+                        .textContent.trim()
+                        .toLowerCase();
                     const title = item
                         .querySelector(".titleField")
-                        .textContent.toLowerCase();
+                        .textContent.trim()
+                        .toLowerCase();
                     const problem = item
                         .querySelector(".problemField")
-                        .textContent.toLowerCase();
+                        .textContent.trim()
+                        .toLowerCase();
 
                     if (
                         (name.includes(nameText) || !nameText) &&
