@@ -291,8 +291,17 @@
             </div>
             <div
                 class="form-row"
-                style="display: flex; align-items: flex-start; gap: 10px"
+                style="
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    margin-top: 20px;
+                    margin-bottom: 40px;
+                "
             >
+                <button type="button" id="clearFormBtn">
+                    🧹 Mezők törlése
+                </button>
                 <button type="button" id="toggleHelp">
                     ℹ️ Hogyan adjam be?
                 </button>
@@ -584,6 +593,12 @@
                     alert("Hiba történt a státusz frissítésekor!");
                 }
             }
+
+            const clearFormBtn = document.getElementById("clearFormBtn");
+            clearFormBtn.addEventListener("click", () => {
+                document.getElementById("itemForm").reset();
+                filterItems();
+            });
 
             const nameInput = document.getElementById("name");
             const neptunInput = document.getElementById("neptun");
