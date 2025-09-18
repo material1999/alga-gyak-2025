@@ -1,3 +1,6 @@
+# CSES - Distinct Numbers
+# https://cses.fi/problemset/task/1621
+
 length = int(input())
 numbers = [int(num) for num in input().split(" ")]
 

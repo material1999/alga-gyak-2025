@@ -1,3 +1,6 @@
+# CSES - Sum of Two Values
+# https://cses.fi/problemset/task/1640
+
 line = input().split(" ")
 n = int(line[0])
 target_sum = int(line[1])

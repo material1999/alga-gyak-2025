@@ -1,3 +1,6 @@
+# CSES - Weird Algorithm
+# https://cses.fi/problemset/task/1068/
+
 import time
 
 def weird_algorithm(n):
