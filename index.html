@@ -262,6 +262,16 @@
                 margin: 0;
                 font-weight: normal;
             }
+
+            .vassCard {
+                background-color: #d3d3d3 !important;
+            }
+
+            .vassCard:hover {
+                background-color: #a9a9a9 !important;
+                transform: translateY(-3px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
         </style>
     </head>
     <body>
@@ -558,8 +568,9 @@
                         `;
                     }
 
+                    const liClass = data.name === "Vass Máté" ? "vassCard" : "";
                     list.innerHTML += `
-                    <li>
+                    <li class="${liClass}">
                         <strong class="nameField">${data.name}</strong>
                         (<span class="neptunField">${data.neptun}</span>) -
                         <span class="titleField">${data.title}</span><small class="difficultyField" style="color:#555;"> [${data.difficulty ?? "N/A"}]</small><br>
