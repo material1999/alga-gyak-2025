@@ -18,7 +18,7 @@ def grid_paths_top_left(n, m):
     for row in dp:
         print(' '.join(f"{cell:3}" for cell in row))
 
-    print(f"\nNumber of paths from bottom-left to top-right: {dp[0][m - 1]}")
+    print(f"\nNumber of paths from bottom-left to top-right: {dp[n - 1][m - 1]}")
     return dp[n - 1][m - 1]
 
 
