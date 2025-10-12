@@ -75,7 +75,7 @@
                 flex-direction: column;
                 gap: 10px;
                 align-items: center;
-                margin-bottom: 30px;
+                margin-bottom: 10px;
             }
 
             .form-row {
@@ -124,6 +124,10 @@
             .approveBtn:hover,
             .rejectBtn:hover {
                 background-color: #45a049;
+            }
+
+            #items {
+                margin-bottom: 50px;
             }
 
             ul#items {
@@ -271,6 +275,38 @@
                 background-color: #a9a9a9 !important;
                 transform: translateY(-3px);
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
+
+            .filter-bar {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+                box-sizing: border-box;
+                margin: 0 auto 20px auto;
+                padding-left: calc((100% - 1200px) / 2);
+                transition: padding-left 0.2s ease;
+            }
+
+            @media (max-width: 1200px) {
+                .filter-bar {
+                    padding-left: calc((100% - 600px) / 2);
+                }
+            }
+
+            .filter-bar label {
+                color: #333;
+                font-size: 1rem;
+            }
+
+            .filter-bar select {
+                padding: 8px 12px;
+                font-size: 1rem;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+                background: white;
+                cursor: pointer;
             }
         </style>
     </head>
@@ -420,6 +456,15 @@
                     Bezárás
                 </button>
             </div>
+        </div>
+
+        <div class="filter-bar">
+            <label for="statusFilter"><strong>Státusz:</strong></label>
+            <select id="statusFilter">
+                <option value="">Összes</option>
+                <option value="Helyes megoldás">Helyes megoldás</option>
+                <option value="Ellenőrzés alatt...">Ellenőrzés alatt...</option>
+            </select>
         </div>
 
         <ul id="items"></ul>
@@ -698,6 +743,7 @@
             const clearFormBtn = document.getElementById("clearFormBtn");
             clearFormBtn.addEventListener("click", () => {
                 document.getElementById("itemForm").reset();
+                document.getElementById("statusFilter").value = "";
                 filterItems();
             });
 
@@ -706,6 +752,7 @@
             const difficultyInput = document.getElementById("difficulty");
             const titleInput = document.getElementById("title");
             const problemInput = document.getElementById("problem");
+            const filterInput = document.getElementById("statusFilter");
 
             function filterItems() {
                 const nameText = nameInput.value.trim().toLowerCase();
@@ -715,6 +762,10 @@
                     .toLowerCase();
                 const titleText = titleInput.value.trim().toLowerCase();
                 const problemText = problemInput.value.toLowerCase();
+                const statusText = document
+                    .getElementById("statusFilter")
+                    .value.trim()
+                    .toLowerCase();
 
                 const items = document.querySelectorAll("#items li");
 
@@ -739,6 +790,10 @@
                         .querySelector(".problemField")
                         .textContent.trim()
                         .toLowerCase();
+                    const status = item
+                        .querySelector(".statusField")
+                        .textContent.trim()
+                        .toLowerCase();
 
                     if (
                         (name.includes(nameText) || !nameText) &&
@@ -746,7 +801,8 @@
                         (difficulty.includes(difficultyText) ||
                             !difficultyText) &&
                         (title.includes(titleText) || !titleText) &&
-                        (problem.includes(problemText) || !problemText)
+                        (problem.includes(problemText) || !problemText) &&
+                        (status.includes(statusText) || !statusText)
                     ) {
                         item.style.display = "";
                     } else {
@@ -760,6 +816,7 @@
             difficultyInput.addEventListener("change", filterItems);
             titleInput.addEventListener("input", filterItems);
             problemInput.addEventListener("input", filterItems);
+            filterInput.addEventListener("change", filterItems);
 
             window.onload = () => {
                 loadItems();
