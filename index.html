@@ -48,6 +48,7 @@
                 box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
                 transition: background 0.2s;
                 margin-right: 10px;
+                width: 130px;
             }
 
             .admin-btn:hover {
@@ -308,12 +309,39 @@
                 background: white;
                 cursor: pointer;
             }
+            #leaderboardModal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 1100;
+            }
+            #leaderboardModal.showModal {
+                display: flex;
+            }
+            #leaderboardTable th,
+            #leaderboardTable td {
+                padding: 8px;
+                text-align: center;
+            }
+            #leaderboardTable th {
+                background-color: #2196f3;
+                color: white;
+            }
         </style>
     </head>
     <body>
         <header class="page-header">
             <h1>Algoritmusok és adatszerkezetek a gyakorlatban (2025)</h1>
             <button id="adminLoginBtn" class="admin-btn">🔑 Admin</button>
+            <button id="leaderboardBtn" class="admin-btn">
+                📊 Leaderboard
+            </button>
             <h2 style="margin-top: 10px">Feladat beadási felület</h2>
         </header>
 
@@ -327,6 +355,35 @@
             <h5>
                 Helyszín, időpont: Irinyi 219 gépterem, csütörtök 18:00-19:30
             </h5>
+        </div>
+
+        <div id="leaderboardModal" class="hidden">
+            <div class="modalContent">
+                <h3>📊 Hallgatói ranglista</h3>
+                <table
+                    id="leaderboardTable"
+                    border="1"
+                    style="
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 15px;
+                    "
+                >
+                    <thead>
+                        <tr>
+                            <th>Név</th>
+                            <th>Könnyű</th>
+                            <th>Közepes</th>
+                            <th>Összes</th>
+                            <th>Jegy</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button id="closeLeaderboard" style="margin-top: 20px">
+                    Bezárás
+                </button>
+            </div>
         </div>
 
         <div id="adminModal" class="hidden">
@@ -824,6 +881,82 @@
                     .getElementById("itemForm")
                     .addEventListener("submit", addItem);
             };
+
+            const leaderboardBtn = document.getElementById("leaderboardBtn");
+            const leaderboardModal =
+                document.getElementById("leaderboardModal");
+            const closeLeaderboard =
+                document.getElementById("closeLeaderboard");
+
+            leaderboardBtn.addEventListener("click", async () => {
+                await showLeaderboard();
+                leaderboardModal.classList.add("showModal");
+            });
+
+            closeLeaderboard.addEventListener("click", () =>
+                leaderboardModal.classList.remove("showModal"),
+            );
+
+            leaderboardModal.addEventListener("click", (e) => {
+                if (e.target === leaderboardModal)
+                    leaderboardModal.classList.remove("showModal");
+            });
+
+            async function showLeaderboard() {
+                const q = query(
+                    collection(db, "solutions"),
+                    where("status", "==", "Helyes megoldás"),
+                );
+                const snapshot = await getDocs(q);
+
+                const stats = {};
+
+                snapshot.forEach((doc) => {
+                    const d = doc.data();
+                    const key = d.neptun;
+                    if (!stats[key])
+                        stats[key] = {
+                            name: d.name,
+                            neptun: d.neptun,
+                            easy: 0,
+                            medium: 0,
+                        };
+                    if (d.difficulty === "Könnyű") stats[key].easy++;
+                    else if (d.difficulty === "Közepes") stats[key].medium++;
+                });
+
+                const results = Object.values(stats).map((s) => {
+                    const total = s.easy + s.medium;
+                    let grade = 1;
+                    if (total >= 5 && s.medium >= 2) grade = 5;
+                    else if (total >= 4 && s.medium >= 1) grade = 4;
+                    else if (total >= 3) grade = 3;
+                    else if (total >= 2) grade = 2;
+                    return { ...s, total, grade };
+                });
+
+                const filteredResults = results.filter(
+                    (r) => r.name.trim().toLowerCase() !== "vass máté",
+                );
+
+                filteredResults.sort(
+                    (a, b) => b.total - a.total || a.name.localeCompare(b.name),
+                );
+
+                const tbody = document.querySelector("#leaderboardTable tbody");
+                tbody.innerHTML = filteredResults
+                    .map(
+                        (r) => `
+                    <tr>
+                        <td>${r.name} (${r.neptun})</td>
+                        <td>${r.easy}</td>
+                        <td>${r.medium}</td>
+                        <td>${r.total}</td>
+                        <td><strong>${r.grade}</strong></td>
+                    </tr>`,
+                    )
+                    .join("");
+            }
         </script>
     </body>
 </html>
