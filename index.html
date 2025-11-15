@@ -343,6 +343,12 @@
                 align-items: center;
                 z-index: 1100;
             }
+            #leaderboardModal .modalContent {
+                width: 90vw;
+                max-width: 800px;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
             #leaderboardModal.showModal {
                 display: flex;
             }
@@ -405,6 +411,7 @@
                             <th>Közepes</th>
                             <th>Összes</th>
                             <th>Jegy</th>
+                            <th>Védés</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -944,15 +951,34 @@
                 snapshot.forEach((doc) => {
                     const d = doc.data();
                     const key = d.neptun;
-                    if (!stats[key])
+
+                    if (!stats[key]) {
                         stats[key] = {
                             name: d.name,
                             neptun: d.neptun,
                             easy: 0,
                             medium: 0,
+                            defended: false,
                         };
+                    }
+
                     if (d.difficulty === "Könnyű") stats[key].easy++;
                     else if (d.difficulty === "Közepes") stats[key].medium++;
+                });
+
+                const studentDocs = await Promise.all(
+                    Object.keys(stats).map((neptun) =>
+                        getDoc(doc(db, "students", neptun)),
+                    ),
+                );
+
+                studentDocs.forEach((snap) => {
+                    if (snap.exists()) {
+                        const s = snap.data();
+                        if (stats[snap.id]) {
+                            stats[snap.id].defended = !!s.defended; // true/false
+                        }
+                    }
                 });
 
                 const results = Object.values(stats).map((s) => {
@@ -962,6 +988,7 @@
                     else if (total >= 4 && s.medium >= 1) grade = 4;
                     else if (total >= 3) grade = 3;
                     else if (total >= 2) grade = 2;
+
                     return { ...s, total, grade };
                 });
 
@@ -983,6 +1010,7 @@
                         <td>${r.medium}</td>
                         <td>${r.total}</td>
                         <td><strong>${r.grade}</strong></td>
+                        <td>${r.defended ? "✅" : "❌"}</td>
                     </tr>`,
                     )
                     .join("");
